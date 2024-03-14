@@ -6,8 +6,11 @@ import {
   getAllPosts, createPost, getPostById, deletePost, updatePost,
 } from './db.js' 
 
+var cors = require('cors');
+
 const app = express()
 app.use(express.json())
+app.use(cors());
 
 // Carga documentación de la API
 const swaggerDocument = YAML.load('./APIdocs/swagger.yaml')
