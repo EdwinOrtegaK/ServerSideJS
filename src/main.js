@@ -4,13 +4,13 @@ import swaggerUi from 'swagger-ui-express'
 import YAML from 'yamljs'
 import {
   getAllPosts, createPost, getPostById, deletePost, updatePost,
-} from './db.js' 
+} from './db.js'
 
-var cors = require('cors');
+const cors = require('cors')
 
 const app = express()
 app.use(express.json())
-app.use(cors());
+app.use(cors())
 
 // Carga documentación de la API
 const swaggerDocument = YAML.load('./APIdocs/swagger.yaml')
