@@ -1,0 +1,107 @@
+swagger: '2.0'
+info:
+  description: 'API Pokémon Descrpcion'
+  version: '1.0.0'
+  title: 'API del Blog Pokémon'
+host: 'localhost:5000'
+basePath: '/'
+schemes:
+  - 'http'
+paths:
+  /posts:
+    get:
+      summary: 'Obtiene todos los posts de Pokémon publicados.'
+      responses:
+        200:
+          description: 'Una lista de posts sobre distintos Pokémon.'
+          schema:
+            type: 'array'
+            items:
+              $ref: '#/definitions/Post'
+    post:
+      summary: 'Crea un nuevo post de Pokémon.'
+      consumes:
+        - 'application/json'
+      parameters:
+        - in: 'body'
+          name: 'body'
+          description: 'Información del post a crear con detalles del Pokémon.'
+          required: true
+          schema:
+            $ref: '#/definitions/Post'
+      responses:
+        200:
+          description: 'Post de Pokémon creado exitosamente.'
+
+  /posts/{postId}:
+    get:
+      summary: 'Obtiene un post específico de Pokémon por ID.'
+      parameters:
+        - in: 'path'
+          name: 'postId'
+          required: true
+          type: 'integer'
+          description: 'ID del post de Pokémon a obtener.'
+      responses:
+        200:
+          //description: 'Detalles del post de Pokémon solicitado.'
+          schema:
+            $ref: '#/definitions/Post'
+        404:
+          //description: 'Post de Pokémon no encontrado.'
+
+    put:
+      summary: 'Actualiza un post existente de Pokémon.'
+      consumes:
+        - 'application/json'
+      parameters:
+        - in: 'path'
+          name: 'postId'
+          required: true
+          type: 'integer'
+          description: 'ID del post de Pokémon a actualizar.'
+        - in: 'body'
+          name: 'body'
+          description: 'Información actualizada del post de Pokémon'
+          required: true
+          schema:
+            $ref: '#/definitions/Post'
+      responses:
+        200:
+          description: 'Post de Pokémon actualizado exitosamente.'
+        404:
+          description: 'Post de Pokémon no encontrado.'
+
+    delete:
+      summary: 'Elimina un post específico de Pokémon.'
+      parameters:
+        - in: 'path'
+          name: 'postId'
+          required: true
+          type: 'integer'
+          description: 'ID del post de Pokémon a eliminar'
+      responses:
+        200:
+          description: 'Post de Pokémon eliminado exitosamente.'
+        404:
+          description: 'Post de Pokémon no encontrado.'
+definitions:
+  Post:
+    type: 'object'
+    properties:
+      title:
+        type: 'string'
+      content:
+        type: 'string'
+      pokemon_name:
+        type: 'string'
+      tipo_pokemon:
+        type: 'string'
+      grupo:
+        type: 'string'
+      cualidad:
+        type: 'string'
+      region:
+        type: 'string'
+      descripcion:
+        type: 'string'
