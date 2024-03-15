@@ -5,6 +5,7 @@ import YAML from 'yamljs'
 import {
   getAllPosts, createPost, getPostById, deletePost, updatePost,
 } from './db.js'
+import cors from "cors";
 
 const app = express()
 app.use(express.json())
