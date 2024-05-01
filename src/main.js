@@ -180,8 +180,26 @@ app.use((error, req, res) => {
      || 'An unexpected error occurred')
 })
 
+// Endpoint para autenticación de usuarios
+app.post('/login', async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    const user = await verifyUser(username, password);
+    if (user) {
+      res.status(200).json({ message: "Autenticación exitosa", user });
+    } else {
+      res.status(401).send("Usuario o contraseña incorrectos");
+    }
+  } catch (error) {
+    console.error('Error al autenticar el usuario:', error);
+    res.status(500).send("Error interno del servidor");
+  }
+});
+
 const port = 22305
 
 app.listen(port, () => {
   console.log(`Server listening at http://127.0.0.1:${port}`)
 })
+

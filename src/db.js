@@ -68,3 +68,10 @@ export async function updatePost(
   )
   return result
 }
+
+// Verificar usuario
+export async function verifyUser(username, password) {
+  const query = 'SELECT * FROM users WHERE username = ? AND password = ?';
+  const [rows] = await conn.query(query, [username, password]);
+  return rows.length > 0 ? rows[0] : null;
+}
