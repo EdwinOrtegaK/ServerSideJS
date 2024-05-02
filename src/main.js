@@ -176,11 +176,12 @@ const logRequest = (req, res, next) => {
 app.use(logRequest)
 
 
-
+/*
 // Middleware para métodos HTTP no implementados
 app.all('*', (req, res) => {
   res.status(501).json({ message: 'Método HTTP no implementado' });
 });
+*/
 
 // Middleware para manejar los errores 404 Not Found
 app.use((req, res) => {
