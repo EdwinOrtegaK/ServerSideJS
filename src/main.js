@@ -24,6 +24,7 @@ app.get('/login', async (req, res) => {
 
   try {
     const user = await verifyUser(username, password);
+    console.log(user)
     if (user) {
       res.status(200).json({ message: "Autenticación exitosa", user });
     } else {
