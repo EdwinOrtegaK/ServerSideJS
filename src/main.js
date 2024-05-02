@@ -19,8 +19,8 @@ const swaggerDocument = YAML.load('./APIdocs/swagger.yaml')
 app.use('/APIdocs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 
 // Endpoint para autenticación de usuarios
-app.post('/login', async (req, res) => {
-  const { username, password } = req.body;
+app.get('/login', async (req, res) => {
+  const { username, password } = req.headers;
 
   try {
     const user = await verifyUser(username, password);
