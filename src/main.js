@@ -18,6 +18,23 @@ const swaggerDocument = YAML.load('./APIdocs/swagger.yaml')
 // Levantar el server utilizando Swagger UI
 app.use('/APIdocs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 
+// Endpoint para autenticación de usuarios
+app.post('/login', async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    const user = await verifyUser(username, password);
+    if (user) {
+      res.status(200).json({ message: "Autenticación exitosa", user });
+    } else {
+      res.status(401).send("Usuario o contraseña incorrectos");
+    }
+  } catch (error) {
+    console.error('Error al autenticar el usuario:', error);
+    res.status(500).send("Error interno del servidor");
+  }
+});
+
 // Obtener todos los posts
 app.get('/posts', async (req, res) => {
   try {
@@ -158,6 +175,13 @@ const logRequest = (req, res, next) => {
 }
 app.use(logRequest)
 
+
+
+// Middleware para métodos HTTP no implementados
+app.all('*', (req, res) => {
+  res.status(501).json({ message: 'Método HTTP no implementado' });
+});
+
 // Middleware para manejar los errores 404 Not Found
 app.use((req, res) => {
   res.status(404).send(
@@ -172,28 +196,6 @@ app.use((error, req, res) => {
   res.status(status).send(error.message
      || 'An unexpected error occurred')
 })
-
-// Endpoint para autenticación de usuarios
-app.post('/login', async (req, res) => {
-  const { username, password } = req.body;
-
-  try {
-    const user = await verifyUser(username, password);
-    if (user) {
-      res.status(200).json({ message: "Autenticación exitosa", user });
-    } else {
-      res.status(401).send("Usuario o contraseña incorrectos");
-    }
-  } catch (error) {
-    console.error('Error al autenticar el usuario:', error);
-    res.status(500).send("Error interno del servidor");
-  }
-});
-
-// Middleware para métodos HTTP no implementados
-app.use((req, res) => {
-  res.status(501).json({ message: 'Método HTTP no implementado' });
-});
 
 const port = 22305
 
