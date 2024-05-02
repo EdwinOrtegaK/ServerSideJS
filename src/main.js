@@ -191,12 +191,9 @@ app.post('/login', async (req, res) => {
 });
 
 // Middleware para métodos HTTP no implementados
-app.all('*', (req, res) => {
-  res.status(501).send(
-    `The method ${req.method} 
-    is not implemented for this route.`,
-  )
-})
+app.use((req, res) => {
+  res.status(501).json({ message: 'Método HTTP no implementado' });
+});
 
 const port = 22305
 
