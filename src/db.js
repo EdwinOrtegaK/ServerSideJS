@@ -1,9 +1,6 @@
 import bcrypt from 'bcrypt';
 import conn from './conn.js'
 
-// Constante para la cantidad de salt rounds
-const saltRounds = 10;
-
 // Obtener post
 export async function getAllPosts() {
   const [rows] = await conn.query('SELECT * FROM blog_posts')
@@ -75,21 +72,17 @@ export async function updatePost(
 
 // Crear un nuevo usuario
 export async function createUser(username, password) {
-  const hash = await bcrypt.hash(password, saltRounds);
-  const [result] = await conn.query(
-    'INSERT INTO users (username, password) VALUES (?, ?)',
-    [username, hash]
-  );
-  return result.insertId;
+  const saltRounds = 10;
+  const hashedPassword = await bcrypt.hash(password, saltRounds);
+  await conn.query('INSERT INTO usuarios (username, password) VALUES (?, ?)', [username, hashedPassword]);
 }
 
 // Verificar usuario
 export async function verifyUser(username, password) {
-  const [rows] = await conn.query('SELECT * FROM users WHERE username = ?', [username]);
+  const [rows] = await conn.query('SELECT password FROM usuarios WHERE username = ?', [username]);
   if (rows.length > 0) {
-    const user = rows[0];
-    const match = await bcrypt.compare(password, user.password);
-    return match ? user : null;
+    const { password: hashedPassword } = rows[0];
+    return await bcrypt.compare(enteredPassword, hashedPassword);
   }
-  return null;
+  return false;
 }
