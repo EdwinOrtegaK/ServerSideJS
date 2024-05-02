@@ -3,9 +3,10 @@ import fs from 'fs'
 import swaggerUi from 'swagger-ui-express'
 import YAML from 'yamljs'
 import {
-  getAllPosts, createPost, getPostById, deletePost, updatePost,
+  createUser, verifyUser, getAllPosts, createPost, getPostById, deletePost, updatePost,
 } from './db.js'
 import cors from "cors";
+import bcrypt from 'bcrypt';
 
 const app = express()
 app.use(express.json())
