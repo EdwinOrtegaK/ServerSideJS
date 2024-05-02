@@ -79,6 +79,10 @@ export async function createUser(username, password) {
 
 // Verificar usuario
 export async function verifyUser(username, password) {
-  const [rows] = await conn.query('SELECT * FROM usuarios WHERE username = ?', [username]);
-  return rows;
+  const [rows] = await conn.query('SELECT password FROM usuarios WHERE username = ?', [username]);
+  if (rows.length > 0) {
+    const { password: hashedPassword } = rows[0];
+    return await bcrypt.compare(enteredPassword, hashedPassword);
+  }
+  return false;
 }

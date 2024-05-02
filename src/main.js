@@ -19,12 +19,11 @@ const swaggerDocument = YAML.load('./APIdocs/swagger.yaml')
 app.use('/APIdocs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 
 // Endpoint para autenticación de usuarios
-app.get('/login', async (req, res) => {
-  const { username, password } = req.headers;
+app.post('/login', async (req, res) => {
+  const { username, password } = req.body;
 
   try {
     const user = await verifyUser(username, password);
-    console.log(user)
     if (user) {
       res.status(200).json({ message: "Autenticación exitosa", user });
     } else {
@@ -34,7 +33,7 @@ app.get('/login', async (req, res) => {
     console.error('Error al autenticar el usuario:', error);
     res.status(500).send("Error interno del servidor");
   }
-});
+}); 
 
 // Obtener todos los posts
 app.get('/posts', async (req, res) => {
@@ -176,14 +175,11 @@ const logRequest = (req, res, next) => {
 }
 app.use(logRequest)
 
-
-/*
 // Middleware para métodos HTTP no implementados
-app.all('*', (req, res) => {
+app.use((req, res) => {
   res.status(501).json({ message: 'Método HTTP no implementado' });
 });
-*/
-
+ 
 // Middleware para manejar los errores 404 Not Found
 app.use((req, res) => {
   res.status(404).send(
