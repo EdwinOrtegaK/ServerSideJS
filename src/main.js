@@ -158,14 +158,6 @@ const logRequest = (req, res, next) => {
 }
 app.use(logRequest)
 
-// Middleware para métodos HTTP no implementados
-app.all('*', (req, res) => {
-  res.status(501).send(
-    `The method ${req.method} 
-    is not implemented for this route.`,
-  )
-})
-
 // Middleware para manejar los errores 404 Not Found
 app.use((req, res) => {
   res.status(404).send(
@@ -198,9 +190,16 @@ app.post('/login', async (req, res) => {
   }
 });
 
+// Middleware para métodos HTTP no implementados
+app.all('*', (req, res) => {
+  res.status(501).send(
+    `The method ${req.method} 
+    is not implemented for this route.`,
+  )
+})
+
 const port = 22305
 
 app.listen(port, () => {
   console.log(`Server listening at http://127.0.0.1:${port}`)
 })
-
