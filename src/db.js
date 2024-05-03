@@ -72,17 +72,12 @@ export async function updatePost(
 
 // Crear un nuevo usuario
 export async function createUser(username, password) {
-  const saltRounds = 10;
-  const hashedPassword = await bcrypt.hash(password, saltRounds);
-  await conn.query('INSERT INTO usuarios (username, password) VALUES (?, ?)', [username, hashedPassword]);
+  const [rows] = await conn.query('INSERT INTO usuarios (usuario, contrasena) VALUES (?, ?)', [username, password]);
+  return rows
 }
 
 // Verificar usuario
-export async function verifyUser(username, password) {
-  const [rows] = await conn.query('SELECT password FROM usuarios WHERE username = ?', [username]);
-  if (rows.length > 0) {
-    const { password: hashedPassword } = rows[0];
-    return await bcrypt.compare(enteredPassword, hashedPassword);
-  }
-  return false;
+export async function verifyUser(username) {
+  const [rows] = await conn.query('SELECT * FROM usuarios WHERE usuario = ?', [username]);
+  return rows;
 }
