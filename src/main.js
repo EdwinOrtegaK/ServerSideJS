@@ -6,7 +6,7 @@ import {
   createUser, verifyUser, getAllPosts, createPost, getPostById, deletePost, updatePost,
 } from './db.js'
 import cors from "cors";
-import bcrypt from 'bcrypt';
+import hashear from "./Utils/authHelpers.js"
 
 const app = express()
 app.use(express.json())
@@ -18,22 +18,47 @@ const swaggerDocument = YAML.load('./APIdocs/swagger.yaml')
 // Levantar el server utilizando Swagger UI
 app.use('/APIdocs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 
-// Endpoint para autenticación de usuarios
-app.post('/login', async (req, res) => {
-  const { username, password } = req.body;
+//Autenticación de usuarios
+app.get('/login', async (req, res) => {
+  const { username, password } = req.headers
+
+  const usuario = await verifyUser(username)
+  const contraseña = usuario[0].contrasena
+
+  if(usuario.length > 0){
+      if(comparar(password, contraseña)){
+        return res.status(200).json({mensaje: 'Bienvenido'})
+      } else {
+        return res.status(501).json({mensaje: 'La contraseña es incorrecta'})
+      }
+  } else {
+    return res.status(501).json({mensaje: 'El usuario no existe'})
+  }
+});
+
+//Creación de usuario
+app.post('/user', async (req, res) => {
+  const { username, password } = req.body
+
+  if (!username ||!password) {
+    return res.status(400).json('Se necesita tener los campos llenos')
+  }
+
+  const usuarioExistente = await verifyUser(username)
+
+  if(usuarioExistente.length > 0) {
+    return res.status(501).json({mensaje: 'El usuario ya existe'})
+  }
+
+  const contraHasheada = hashear(password)
 
   try {
-    const user = await verifyUser(username, password);
-    if (user) {
-      res.status(200).json({ message: "Autenticación exitosa", user });
-    } else {
-      res.status(401).send("Usuario o contraseña incorrectos");
-    }
+    await createUser(username, contraHasheada)
+    return res.status(200).json({mensaje: 'Se registro correctamente'})
   } catch (error) {
-    console.error('Error al autenticar el usuario:', error);
-    res.status(500).send("Error interno del servidor");
+    console.log(error);
   }
-}); 
+})
 
 // Obtener todos los posts
 app.get('/posts', async (req, res) => {
