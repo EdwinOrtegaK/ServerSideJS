@@ -1,5 +1,5 @@
-import bcrypt from 'bcrypt';
 import conn from './conn.js'
+
 
 // Obtener post
 export async function getAllPosts() {
@@ -72,12 +72,12 @@ export async function updatePost(
 
 // Crear un nuevo usuario
 export async function createUser(username, password) {
-  const [rows] = await conn.query('INSERT INTO usuarios (usuario, contrasena) VALUES (?, ?)', [username, password]);
+  const [rows] = await conn.query('INSERT INTO usuarios (usuario, contrasena) VALUES (?, ?)', [username, password])
   return rows
 }
 
 // Verificar usuario
 export async function verifyUser(username) {
-  const [rows] = await conn.query('SELECT * FROM usuarios WHERE usuario = ?', [username]);
-  return rows;
+  const [rows] = await conn.query('SELECT * FROM usuarios WHERE usuario = ?', [username])
+  return rows
 }

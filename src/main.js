@@ -10,7 +10,7 @@ import hashear from "./Utils/authHelpers.js"
 
 const app = express()
 app.use(express.json())
-app.use(cors({ origin: 'http://localhost:5173' }));
+app.use(cors())
 
 // Carga documentación de la API
 const swaggerDocument = YAML.load('./APIdocs/swagger.yaml')
