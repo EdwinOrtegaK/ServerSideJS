@@ -78,6 +78,6 @@ export async function createUser(username, password) {
 
 // Verificar usuario
 export async function verifyUser(username) {
-  const [rows] = await conn.query('SELECT * FROM usuarios WHERE usuario = ?', [username])
+  const [rows] = await conn.query('SELECT * FROM usuarios WHERE username = ?', [username])
   return rows
 }
