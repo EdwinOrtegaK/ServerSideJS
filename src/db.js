@@ -72,7 +72,7 @@ export async function updatePost(
 
 // Crear un nuevo usuario
 export async function createUser(username, password) {
-  const [rows] = await conn.query('INSERT INTO usuarios (usuario, contrasena) VALUES (?, ?)', [username, password])
+  const [rows] = await conn.query('INSERT INTO usuarios (username, password) VALUES (?, ?)', [username, password])
   return rows
 }
 
