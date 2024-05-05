@@ -6,7 +6,7 @@ import {
   createUser, verifyUser, getAllPosts, createPost, getPostById, deletePost, updatePost,
 } from './db.js'
 import cors from "cors";
-import { hashear } from "./Utils/authHelpers.js"
+import { hashear, comparar } from "./Utils/authHelpers.js"
 
 const app = express()
 app.use(express.json())
