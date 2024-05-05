@@ -23,10 +23,10 @@ app.get('/login', async (req, res) => {
   const { username, password } = req.headers
 
   const usuario = await verifyUser(username)
-  const contraseña = usuario[0].password
+  const contrasena = usuario[0].password
 
   if(usuario.length > 0){
-      if(comparar(password, contraseña)){
+      if(comparar(password, contrasena)){
         return res.status(200).json({mensaje: 'Bienvenido'})
       } else {
         return res.status(501).json({mensaje: 'La contraseña es incorrecta'})
