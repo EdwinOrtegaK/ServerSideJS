@@ -23,7 +23,7 @@ app.get('/login', async (req, res) => {
   const { username, password } = req.headers
 
   const usuario = await verifyUser(username)
-  const contraseña = usuario[0].contrasena
+  const contraseña = usuario[0].password
 
   if(usuario.length > 0){
       if(comparar(password, contraseña)){
