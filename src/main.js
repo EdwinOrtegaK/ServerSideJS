@@ -1,94 +1,119 @@
-import express from 'express'
-import fs from 'fs'
-import swaggerUi from 'swagger-ui-express'
-import YAML from 'yamljs'
+import express from "express";
+import fs from "fs";
+import swaggerUi from "swagger-ui-express";
+import YAML from "yamljs";
 import {
-  createUser, verifyUser, getAllPosts, createPost, getPostById, deletePost, updatePost,
-} from './db.js'
+  createUser,
+  verifyUser,
+  getAllPosts,
+  createPost,
+  getPostById,
+  deletePost,
+  updatePost,
+} from "./db.js";
 import cors from "cors";
-import { hashear, comparar } from "./Utils/authHelpers.js"
+import { hashear, comparar } from "./Utils/authHelpers.js";
 
-const app = express()
-const JWT_SECRET = 'patsnation';
-app.use(express.json())
-app.use(cors())
+const app = express();
+const JWT_SECRET = "patsnation";
+app.use(express.json());
+app.use(cors());
 
 // Carga documentación de la API
-const swaggerDocument = YAML.load('./APIdocs/swagger.yaml')
+const swaggerDocument = YAML.load("./APIdocs/swagger.yaml");
 
 // Levantar el server utilizando Swagger UI
-app.use('/APIdocs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
+app.use("/APIdocs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 //Autenticación de usuarios
-app.get('/login', async (req, res) => {
+app.get("/login", async (req, res) => {
   const { username, password } = req.headers;
 
   try {
     const usuario = await verifyUser(username);
     if (usuario && usuario.length > 0) {
-      const contrasenaValida = await bcrypt.compare(password, usuario[0].password);
+      const contrasenaValida = await bcrypt.compare(
+        password,
+        usuario[0].password
+      );
       if (contrasenaValida) {
-        const token = jwt.sign({ id: usuario[0].id, username: usuario[0].username }, JWT_SECRET, { expiresIn: '1h' });
-        return res.status(200).json({ mensaje: 'Bienvenido', token });
+        const token = jwt.sign(
+          { id: usuario[0].id, username: usuario[0].username },
+          JWT_SECRET,
+          { expiresIn: "2m" }
+        );
+        return res.status(200).json({ mensaje: "Bienvenido", token });
       } else {
-        return res.status(401).json({ mensaje: 'La contraseña es incorrecta' });
+        return res.status(401).json({ mensaje: "La contraseña es incorrecta" });
       }
     } else {
-      return res.status(404).json({ mensaje: 'El usuario no existe' });
+      return res.status(404).json({ mensaje: "El usuario no existe" });
     }
   } catch (error) {
-    console.error('Error al autenticar el usuario:', error);
+    console.error("Error al autenticar el usuario:", error);
     res.status(500).send("Error interno del servidor");
   }
 });
 
 //Creación de usuario
-app.post('/user', async (req, res) => {
-  const { username, password } = req.body
+app.post("/user", async (req, res) => {
+  const { username, password } = req.body;
 
-  if (!username ||!password) {
-    return res.status(400).json('Se necesita tener los campos llenos')
+  if (!username || !password) {
+    return res.status(400).json("Se necesita tener los campos llenos");
   }
 
-  const usuarioExistente = await verifyUser(username)
+  const usuarioExistente = await verifyUser(username);
 
-  if(usuarioExistente.length > 0) {
-    return res.status(501).json({mensaje: 'El usuario ya existe'})
+  if (usuarioExistente.length > 0) {
+    return res.status(501).json({ mensaje: "El usuario ya existe" });
   }
 
-  const contraHasheada = hashear(password)
+  const contraHasheada = hashear(password);
 
   try {
-    await createUser(username, contraHasheada)
-    return res.status(200).json({mensaje: 'Se registro correctamente'})
+    await createUser(username, contraHasheada);
+    return res.status(200).json({ mensaje: "Se registro correctamente" });
   } catch (error) {
     console.log(error);
   }
-})
+});
 
 // Obtener todos los posts
-app.get('/posts', async (req, res) => {
+app.get("/posts", async (req, res) => {
   try {
-    const posts = await getAllPosts()
-    return res.json(posts)
+    const posts = await getAllPosts();
+    return res.json(posts);
   } catch (error) {
-    console.error(error)
-    return res.status(500).send('An error occurred')
+    console.error(error);
+    return res.status(500).send("An error occurred");
   }
-})
+});
 
 // Crear un nuevo post
-app.post('/posts', async (req, res) => {
+app.post("/posts", async (req, res) => {
   const {
-    title, content, pokemonName, tipoPokemon, grupo, cualidad, region, descripcion,
-  } = req.body
+    title,
+    content,
+    pokemonName,
+    tipoPokemon,
+    grupo,
+    cualidad,
+    region,
+    descripcion,
+  } = req.body;
 
-  if (!title || !content || !pokemonName
-      || !tipoPokemon || !grupo || !cualidad
-      || !region || !descripcion) {
-    return res.status(400).send(
-      'Missing required fields or incorrect format',
-    )
+  if (
+    !title ||
+    !content ||
+    !pokemonName ||
+    !tipoPokemon ||
+    !grupo ||
+    !cualidad ||
+    !region ||
+    !descripcion
+  ) {
+    return res.status(400).send("Missing required fields or incorrect format");
   }
 
   try {
@@ -100,46 +125,58 @@ app.post('/posts', async (req, res) => {
       grupo,
       cualidad,
       region,
-      descripcion,
-    )
+      descripcion
+    );
     return res.status(200).json({
-      message: 'Post created successfully',
+      message: "Post created successfully",
       postId: result.insertId,
-    })
+    });
   } catch (error) {
-    console.error(error)
-    return res.status(500).send('An error occurred')
+    console.error(error);
+    return res.status(500).send("An error occurred");
   }
-})
+});
 
 // Obtener un post por ID
-app.get('/posts/:postId', async (req, res) => {
+app.get("/posts/:postId", async (req, res) => {
   try {
-    const { postId } = req.params
-    const post = await getPostById(postId)
+    const { postId } = req.params;
+    const post = await getPostById(postId);
     if (post) {
-      return res.status(200).json(post)
+      return res.status(200).json(post);
     }
-    return res.status(404).send('Post not found')
+    return res.status(404).send("Post not found");
   } catch (error) {
-    console.error(error)
-    return res.status(500).send('An error occurred')
+    console.error(error);
+    return res.status(500).send("An error occurred");
   }
-})
+});
 
 // Actualizar un post por ID
-app.put('/posts/:postId', async (req, res) => {
-  const { postId } = req.params
+app.put("/posts/:postId", async (req, res) => {
+  const { postId } = req.params;
   const {
-    title, content, pokemonName, tipoPokemon, grupo, cualidad, region, descripcion,
-  } = req.body
+    title,
+    content,
+    pokemonName,
+    tipoPokemon,
+    grupo,
+    cualidad,
+    region,
+    descripcion,
+  } = req.body;
 
-  if (!title || !content || !pokemonName
-      || !tipoPokemon || !grupo || !cualidad
-      || !region || !descripcion) {
-    return res.status(400).send(
-      'Missing required fields or incorrect format',
-    )
+  if (
+    !title ||
+    !content ||
+    !pokemonName ||
+    !tipoPokemon ||
+    !grupo ||
+    !cualidad ||
+    !region ||
+    !descripcion
+  ) {
+    return res.status(400).send("Missing required fields or incorrect format");
   }
 
   try {
@@ -152,82 +189,78 @@ app.put('/posts/:postId', async (req, res) => {
       grupo,
       cualidad,
       region,
-      descripcion,
-    )
+      descripcion
+    );
     if (result.affectedRows > 0) {
       return res.status(200).json({
-        message: 'Post updated successfully',
-      })
+        message: "Post updated successfully",
+      });
     }
-    return res.status(404).send('Post not found')
+    return res.status(404).send("Post not found");
   } catch (error) {
-    console.error(error)
-    return res.status(500).send('An error occurred')
+    console.error(error);
+    return res.status(500).send("An error occurred");
   }
-})
+});
 
 // Borrar un post por ID
-app.delete('/posts/:postId', async (req, res) => {
-  const { postId } = req.params
+app.delete("/posts/:postId", async (req, res) => {
+  const { postId } = req.params;
   try {
-    const result = await deletePost(postId)
+    const result = await deletePost(postId);
     if (result.affectedRows > 0) {
-      return res.status(204).send()
+      return res.status(204).send();
     }
-    return res.status(404).send('Post not found')
+    return res.status(404).send("Post not found");
   } catch (error) {
-    console.error(error)
-    return res.status(500).send('An error occurred')
+    console.error(error);
+    return res.status(500).send("An error occurred");
   }
-})
+});
 
 const logRequest = (req, res, next) => {
-  const { method, path: routePath, body } = req
+  const { method, path: routePath, body } = req;
   const logMessage = `${new Date().toISOString()} - 
-  ${method} ${routePath} - Request Body: ${
-  JSON.stringify(body)}\n`
-  fs.appendFile('log.txt', logMessage, (err) => {
-    if (err) console.error('Error writing to log file', err)
-  })
+  ${method} ${routePath} - Request Body: ${JSON.stringify(body)}\n`;
+  fs.appendFile("log.txt", logMessage, (err) => {
+    if (err) console.error("Error writing to log file", err);
+  });
 
   // Intercepta la función original res.json para poder registrar la respuesta
-  const originalJson = res.json.bind(res)
+  const originalJson = res.json.bind(res);
   res.json = (data) => {
-    const logResponse = `${new Date().toISOString()} - ${
-      method} ${routePath} - Response Body: ${
-      JSON.stringify(data)}\n`
-    fs.appendFile('log.txt', logResponse, (err) => {
-      if (err) console.error('Error writing to log file', err)
-    })
-    return originalJson(data)
-  }
+    const logResponse = `${new Date().toISOString()} - ${method} ${routePath} - Response Body: ${JSON.stringify(
+      data
+    )}\n`;
+    fs.appendFile("log.txt", logResponse, (err) => {
+      if (err) console.error("Error writing to log file", err);
+    });
+    return originalJson(data);
+  };
 
-  next()
-}
-app.use(logRequest)
+  next();
+};
+app.use(logRequest);
 
 // Middleware para métodos HTTP no implementados
 app.use((req, res) => {
-  res.status(501).json({ message: 'Método HTTP no implementado' });
+  res.status(501).json({ message: "Método HTTP no implementado" });
 });
- 
+
 // Middleware para manejar los errores 404 Not Found
 app.use((req, res) => {
-  res.status(404).send(
-    'The resource you are looking for could not be found',
-  )
-})
+  res.status(404).send("The resource you are looking for could not be found");
+});
 
 // Middleware para manejar errores
 app.use((error, req, res) => {
-  const status = error.status || 500
-  console.error(error)
-  res.status(status).send(error.message
-     || 'An unexpected error occurred')
-})
+  const status = error.status || 500;
+  console.error(error);
+  res.status(status).send(error.message || "An unexpected error occurred");
+});
 
-const port = 22305
+const port = 22305;
 
 app.listen(port, () => {
-  console.log(`Server listening at http://127.0.0.1:${port}`)
-})
+  console.log(`Server listening at http://127.0.0.1:${port}`);
+});
