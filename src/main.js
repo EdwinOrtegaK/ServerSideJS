@@ -33,7 +33,7 @@ app.get("/login", async (req, res) => {
   try {
     const usuario = await verifyUser(username);
     if (usuario && usuario.length > 0) {
-      const contrasenaValida = await bcrypt.compare(
+      const contrasenaValida = await comparar(
         password,
         usuario[0].password
       );
