@@ -12,7 +12,6 @@ import {
   updatePost,
 } from "./db.js";
 import cors from "cors";
-import jwt from 'jsonwebtoken';
 import { hashear, comparar } from "./Utils/authHelpers.js";
 
 const app = express();
@@ -41,7 +40,7 @@ app.get("/login", async (req, res) => {
         const token = jwt.sign(
           { id: usuario[0].id, username: usuario[0].username },
           JWT_SECRET,
-          { expiresIn: "2m" }
+          { expiresIn: "30m" }
         );
         console.log("Token generado:", token);
         return res.status(200).json({ mensaje: "Bienvenido", token });
