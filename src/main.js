@@ -42,6 +42,7 @@ app.get("/login", async (req, res) => {
           JWT_SECRET,
           { expiresIn: "2m" }
         );
+        console.log("Token generado:", token);
         return res.status(200).json({ mensaje: "Bienvenido", token });
       } else {
         return res.status(401).json({ mensaje: "La contraseña es incorrecta" });
