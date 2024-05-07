@@ -33,26 +33,18 @@ app.get("/login", async (req, res) => {
   try {
     const usuario = await verifyUser(username);
     if (usuario && usuario.length > 0) {
-      const contrasenaValida = await comparar(
-        password,
-        usuario[0].password
-      );
+      const contrasenaValida = await bcrypt.compare(password, usuario[0].password);
       if (contrasenaValida) {
-        const token = jwt.sign(
-          { id: usuario[0].id, username: usuario[0].username },
-          JWT_SECRET,
-          { expiresIn: "30m" }
-        );
-        console.log("Token generado:", token);
-        return res.status(200).json({ mensaje: "Bienvenido", token });
+        const token = jwt.sign({ id: usuario[0].id, username: usuario[0].username }, JWT_SECRET, { expiresIn: '1h' });
+        return res.status(200).json({ mensaje: 'Bienvenido', token });
       } else {
-        return res.status(401).json({ mensaje: "La contraseña es incorrecta" });
+        return res.status(401).json({ mensaje: 'La contraseña es incorrecta' });
       }
     } else {
-      return res.status(404).json({ mensaje: "El usuario no existe" });
+      return res.status(404).json({ mensaje: 'El usuario no existe' });
     }
   } catch (error) {
-    console.error("Error al autenticar el usuario:", error);
+    console.error('Error al autenticar el usuario:', error);
     res.status(500).send("Error interno del servidor");
   }
 });
