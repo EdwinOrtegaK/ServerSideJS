@@ -12,6 +12,7 @@ import {
   updatePost,
 } from "./db.js";
 import cors from "cors";
+import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { hashear, comparar } from "./Utils/authHelpers.js";
 
