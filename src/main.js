@@ -12,7 +12,6 @@ import {
   updatePost,
 } from "./db.js";
 import cors from "cors";
-import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { hashear, comparar } from "./Utils/authHelpers.js";
 
@@ -28,51 +27,46 @@ const swaggerDocument = YAML.load("./APIdocs/swagger.yaml");
 app.use("/APIdocs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 //Autenticación de usuarios
-app.get("/login", async (req, res) => {
-  const { username, password } = req.headers;
+app.get('/login', async (req, res) => {
+  const { username, password } = req.headers
 
-  try {
-    const usuario = await verifyUser(username);
-    if (usuario && usuario.length > 0) {
-      const contrasenaValida = await bcrypt.compare(password, usuario[0].password);
-      if (contrasenaValida) {
-        const token = jwt.sign({ id: usuario[0].id, username: usuario[0].username }, JWT_SECRET, { expiresIn: '1h' });
-        return res.status(200).json({ mensaje: 'Bienvenido', token });
+  const usuario = await verifyUser(username)
+  const contrasena = usuario[0].password
+
+  if(usuario.length > 0){
+      if(comparar(password, contrasena)){
+        return res.status(200).json({mensaje: 'Bienvenido'})
       } else {
-        return res.status(401).json({ mensaje: 'La contraseña es incorrecta' });
+        return res.status(501).json({mensaje: 'La contraseña es incorrecta'})
       }
-    } else {
-      return res.status(404).json({ mensaje: 'El usuario no existe' });
-    }
-  } catch (error) {
-    console.error('Error al autenticar el usuario:', error);
-    res.status(500).send("Error interno del servidor");
+  } else {
+    return res.status(501).json({mensaje: 'El usuario no existe'})
   }
 });
 
 //Creación de usuario
-app.post("/user", async (req, res) => {
-  const { username, password } = req.body;
+app.post('/user', async (req, res) => {
+  const { username, password } = req.body
 
-  if (!username || !password) {
-    return res.status(400).json("Se necesita tener los campos llenos");
+  if (!username ||!password) {
+    return res.status(400).json('Se necesita tener los campos llenos')
   }
 
-  const usuarioExistente = await verifyUser(username);
+  const usuarioExistente = await verifyUser(username)
 
-  if (usuarioExistente.length > 0) {
-    return res.status(501).json({ mensaje: "El usuario ya existe" });
+  if(usuarioExistente.length > 0) {
+    return res.status(501).json({mensaje: 'El usuario ya existe'})
   }
 
-  const contraHasheada = hashear(password);
+  const contraHasheada = hashear(password)
 
   try {
-    await createUser(username, contraHasheada);
-    return res.status(200).json({ mensaje: "Se registro correctamente" });
+    await createUser(username, contraHasheada)
+    return res.status(200).json({mensaje: 'Se registro correctamente'})
   } catch (error) {
     console.log(error);
   }
-});
+})
 
 // Obtener todos los posts
 app.get("/posts", async (req, res) => {
