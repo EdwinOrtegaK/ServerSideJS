@@ -12,13 +12,43 @@ import {
   updatePost,
 } from "./db.js";
 import cors from "cors";
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken";
 import { hashear, comparar } from "./Utils/authHelpers.js";
 
 const app = express();
 const JWT_SECRET = "patsnation";
+
 app.use(express.json());
 app.use(cors());
+
+//Middleware de verificación
+const verifyToken = (req, res, next) => {
+  const openPaths = ['/login', '/user', '/posts'];
+
+  if (req.path === '/posts' && req.method === 'GET') {
+    return next();
+  }
+  
+  if (openPaths.includes(req.path)) {
+    next();
+  } else {
+    const authHeader = req.headers['Authorization'];
+    const token = authHeader && authHeader.split(' ')[1]; // Bearer Token
+  
+    if (!token) {
+      return res.status(401).json({ message: 'Token no proporcionado' });
+    }
+  
+    jwt.verify(token, JWT_SECRET, (err, decoded) => {
+      if (err) {
+        return res.status(403).json({ message: 'Token inválido' });
+      }
+      next();
+    });
+  }
+};
+
+app.use(verifyToken);
 
 // Carga documentación de la API
 const swaggerDocument = YAML.load("./APIdocs/swagger.yaml");
@@ -27,8 +57,8 @@ const swaggerDocument = YAML.load("./APIdocs/swagger.yaml");
 app.use("/APIdocs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 //Autenticación de usuarios
-app.get('/login', async (req, res) => {
-  const { username, password } = req.headers
+app.get("/login", async (req, res) => {
+  const { username, password } = req.headers;
 
   try {
     const usuario = await verifyUser(username);
@@ -38,44 +68,44 @@ app.get('/login', async (req, res) => {
         const token = jwt.sign(
           { id: usuario[0].id, username: usuario[0].username },
           JWT_SECRET,
-          { expiresIn: '1h' } // El token expira en 1 hora
+          { expiresIn: "30m" }
         );
-        return res.status(200).json({ mensaje: 'Bienvenido', token });
+        return res.status(200).json({ mensaje: "Bienvenido", token });
       } else {
-        return res.status(401).json({ mensaje: 'La contraseña es incorrecta' });
+        return res.status(401).json({ mensaje: "La contraseña es incorrecta" });
       }
     } else {
-      return res.status(404).json({ mensaje: 'El usuario no existe' });
+      return res.status(404).json({ mensaje: "El usuario no existe" });
     }
   } catch (error) {
-    console.error('Error al autenticar el usuario:', error);
-    res.status(500).send('Error interno del servidor');
+    console.error("Error al autenticar el usuario:", error);
+    res.status(500).send("Error interno del servidor");
   }
 });
 
 //Creación de usuario
-app.post('/user', async (req, res) => {
-  const { username, password } = req.body
+app.post("/user", async (req, res) => {
+  const { username, password } = req.body;
 
-  if (!username ||!password) {
-    return res.status(400).json('Se necesita tener los campos llenos')
+  if (!username || !password) {
+    return res.status(400).json("Se necesita tener los campos llenos");
   }
 
-  const usuarioExistente = await verifyUser(username)
+  const usuarioExistente = await verifyUser(username);
 
-  if(usuarioExistente.length > 0) {
-    return res.status(501).json({mensaje: 'El usuario ya existe'})
+  if (usuarioExistente.length > 0) {
+    return res.status(501).json({ mensaje: "El usuario ya existe" });
   }
 
-  const contraHasheada = hashear(password)
+  const contraHasheada = hashear(password);
 
   try {
-    await createUser(username, contraHasheada)
-    return res.status(200).json({mensaje: 'Se registro correctamente'})
+    await createUser(username, contraHasheada);
+    return res.status(200).json({ mensaje: "Se registro correctamente" });
   } catch (error) {
     console.log(error);
   }
-})
+});
 
 // Obtener todos los posts
 app.get("/posts", async (req, res) => {
