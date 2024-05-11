@@ -32,14 +32,11 @@ const verifyToken = (req, res, next) => {
   if (openPaths.includes(req.path)) {
     next();
   } else {
-    // const authHeader = req.headers['authorization'];
-    // const token = authHeader && authHeader.split(' ')[1]; // Bearer Token
-    const token = req.header('Authorization').replace('Bearer ', '');
-
-    console.log(token)
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1]; // Bearer Token
 
     if (!token) {
-      return res.status(401).json({ message: 'Token no proporcionado' + token });
+      return res.status(401).json({ message: 'Token no proporcionado' });
     }
   
     jwt.verify(token, JWT_SECRET, (err, decoded) => {
