@@ -32,9 +32,10 @@ const verifyToken = (req, res, next) => {
   if (openPaths.includes(req.path)) {
     next();
   } else {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1]; // Bearer Token
-    
+    // const authHeader = req.headers['authorization'];
+    // const token = authHeader && authHeader.split(' ')[1]; // Bearer Token
+    const token = req.header('Authorization').replace('Bearer ', '');
+
     console.log(token)
 
     if (!token) {
