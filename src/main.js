@@ -32,9 +32,9 @@ const verifyToken = (req, res, next) => {
   if (openPaths.includes(req.path)) {
     next();
   } else {
-    const authHeader = req.headers['Authorization'];
+    const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1]; // Bearer Token
-  
+
     if (!token) {
       return res.status(401).json({ message: 'Token no proporcionado' });
     }
