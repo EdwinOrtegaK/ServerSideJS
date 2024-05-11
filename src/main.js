@@ -34,6 +34,8 @@ const verifyToken = (req, res, next) => {
   } else {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1]; // Bearer Token
+    
+    console.log(token)
 
     if (!token) {
       return res.status(401).json({ message: 'Token no proporcionado' });
