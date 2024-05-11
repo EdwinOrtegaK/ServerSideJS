@@ -38,7 +38,7 @@ const verifyToken = (req, res, next) => {
     console.log(token)
 
     if (!token) {
-      return res.status(401).json({ message: 'Token no proporcionado' });
+      return res.status(401).json({ message: 'Token no proporcionado' + token });
     }
   
     jwt.verify(token, JWT_SECRET, (err, decoded) => {
